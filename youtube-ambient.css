@@ -4,6 +4,8 @@
   --lg-yt-reach: 110px;
   --lg-yt-bloom-reach: 79px;
   --lg-yt-edge-reach: 20px;
+  --lg-yt-shadow-blur: 95px;
+  --lg-yt-shadow-blur-strong: 106px;
   --lg-yt-spread: 1.32;
   --lg-yt-player-spread: 1.154;
   --lg-yt-saturation: 190%;
@@ -11,19 +13,28 @@
 
 .lg-yt-ambient-host {
   position: absolute;
-  z-index: -1;
+  z-index: 0;
   inset: 0;
   pointer-events: none;
   overflow: visible;
   contain: layout style;
   opacity: var(--lg-yt-intensity);
   transition: opacity .35s ease;
+  box-shadow:
+    -42px 0 var(--lg-yt-shadow-blur) rgb(var(--lg-yt-left, 50 90 150) / .42),
+    42px 0 var(--lg-yt-shadow-blur) rgb(var(--lg-yt-right, 50 90 150) / .42),
+    0 34px var(--lg-yt-shadow-blur-strong) rgb(var(--lg-yt-center, 50 90 150) / .34);
 }
 
 .lg-yt-player-surface {
   position: relative !important;
   isolation: isolate !important;
   overflow: visible !important;
+}
+
+.lg-yt-player-surface > :not(.lg-yt-ambient-host) {
+  position: relative;
+  z-index: 1;
 }
 
 .lg-yt-ambient-host[hidden] { display: none !important; }

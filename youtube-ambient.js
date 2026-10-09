@@ -53,6 +53,8 @@
     settings = { ...defaults, ...next };
     root.style.setProperty("--lg-yt-intensity", settings.ytAmbientIntensity / 100);
     root.style.setProperty("--lg-yt-blur", `${settings.ytAmbientBlur}px`);
+    root.style.setProperty("--lg-yt-shadow-blur", `${Math.round(settings.ytAmbientBlur * 1.25)}px`);
+    root.style.setProperty("--lg-yt-shadow-blur-strong", `${Math.round(settings.ytAmbientBlur * 1.4)}px`);
     root.style.setProperty("--lg-yt-reach", `${settings.ytAmbientReach}px`);
     root.style.setProperty("--lg-yt-bloom-reach", `${Math.round(settings.ytAmbientReach * .72)}px`);
     root.style.setProperty("--lg-yt-edge-reach", `${Math.round(settings.ytAmbientReach * .18)}px`);
@@ -167,6 +169,11 @@
     if (stored.ytAmbientSettingsVersion < 2) {
       stored = { ...stored, ...defaults, ytAmbientSettingsVersion: 2 };
       await chrome.storage.local.set(stored);
+    }
+    if (stored.ytAmbientSettingsVersion < 3) {
+      stored.ytAmbientEnabled = true;
+      stored.ytAmbientSettingsVersion = 3;
+      await chrome.storage.local.set({ ytAmbientEnabled: true, ytAmbientSettingsVersion: 3 });
     }
     applySettings(stored);
     bindVideo();
