@@ -20,7 +20,7 @@
   edge.className = "lg-yt-ambient-edge";
   toggle.className = "lg-yt-toggle";
   toggle.type = "button";
-  toggle.textContent = "◐";
+  toggle.textContent = "◐ 주변광";
   toggle.title = "YouTube 주변광 설정";
   toggle.setAttribute("aria-label", "YouTube 주변광 설정");
   toggle.setAttribute("aria-expanded", "false");
@@ -38,7 +38,8 @@
   panel.innerHTML = controls.map(([key, label, min, max]) =>
     `<label>${label}<output data-output="${key}"></output><input data-setting="${key}" type="range" min="${min}" max="${max}"></label>`
   ).join("");
-  document.documentElement.append(host, toggle, panel);
+  document.documentElement.append(host);
+  document.body.append(toggle, panel);
 
   let settings = { ...defaults };
   let video = null;
@@ -152,6 +153,14 @@
     settings[key] = Number(event.target.value);
     applySettings(settings);
     await chrome.storage.local.set({ [key]: settings[key] });
+  });
+
+  document.addEventListener("keydown", (event) => {
+    if (event.altKey && event.shiftKey && event.key.toLowerCase() === "l" && isVideoPage()) {
+      event.preventDefault();
+      panel.hidden = !panel.hidden;
+      toggle.setAttribute("aria-expanded", String(!panel.hidden));
+    }
   });
 
   chrome.storage.local.get({ ...defaults, ytAmbientSettingsVersion: 0 }).then(async (stored) => {
