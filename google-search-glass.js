@@ -59,9 +59,11 @@
     await chrome.storage.local.set({ [key]: settings[key] });
   });
 
-  chrome.storage.local.get(defaults).then((stored) => {
+  chrome.storage.local.get({ ...defaults, customWallpaper: "" }).then((stored) => {
     apply(stored);
-    WallpaperPhysics.mount(wallpaperCanvas, chrome.runtime.getURL("assets/reference-flow-wallpaper.png"), { motion: stored.motion, refraction: stored.refraction });
+    const wallpaperSource = stored.customWallpaper || chrome.runtime.getURL("assets/reference-flow-wallpaper.png");
+    root.style.setProperty("--lg-search-wallpaper", `url("${wallpaperSource}")`);
+    WallpaperPhysics.mount(wallpaperCanvas, wallpaperSource, { motion: stored.motion, refraction: stored.refraction });
     LiquidPhysics.mount(liquidCanvas, { hue: stored.hue, motion: stored.motion });
   });
 
@@ -80,4 +82,7 @@
     surface.setAttribute("data-lg-search-active", "true");
   }, { passive: true });
   document.addEventListener("pointerleave", () => active?.removeAttribute("data-lg-search-active"));
+  chrome.storage.onChanged.addListener((changes, areaName) => {
+    if (areaName === "local" && changes.customWallpaper) location.reload();
+  });
 })();
