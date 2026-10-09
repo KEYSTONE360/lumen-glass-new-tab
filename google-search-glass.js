@@ -68,7 +68,7 @@
   });
 
   let active = null;
-  const selector = "#searchform, form[role='search'], .sbct, #rso, .MjjYud, .g, .isv-r, [role='listbox'] [role='option'], [role='button']";
+  const selector = "#searchform, form[role='search'], #searchform .sbct, .A8SBwf [role='option'], #rso, .MjjYud, .g, .isv-r, [role='button']";
   document.addEventListener("pointermove", (event) => {
     const surface = event.target.closest(selector);
     if (surface !== active) {
