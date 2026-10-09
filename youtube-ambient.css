@@ -1,8 +1,8 @@
 :root {
-  --lg-yt-intensity: .72;
-  --lg-yt-blur: 58px;
-  --lg-yt-spread: 1.16;
-  --lg-yt-saturation: 155%;
+  --lg-yt-intensity: .92;
+  --lg-yt-blur: 76px;
+  --lg-yt-spread: 1.32;
+  --lg-yt-saturation: 190%;
 }
 
 .lg-yt-ambient-host {
@@ -52,15 +52,15 @@ html[data-lg-yt-watch="true"] ytd-app {
   width: 116%;
   height: 116%;
   transform: scale(var(--lg-yt-spread));
-  filter: blur(var(--lg-yt-blur)) saturate(var(--lg-yt-saturation)) contrast(1.12) brightness(.72);
-  opacity: .78;
+  filter: blur(var(--lg-yt-blur)) saturate(var(--lg-yt-saturation)) contrast(1.2) brightness(.96);
+  opacity: .96;
 }
 
 .lg-yt-ambient-bloom {
   inset: -4%;
   background:
-    radial-gradient(ellipse at 50% 48%, rgb(var(--lg-yt-center, 92 116 160) / .34), transparent 56%),
-    linear-gradient(90deg, rgb(var(--lg-yt-left, 60 80 120) / .38), transparent 28% 72%, rgb(var(--lg-yt-right, 60 80 120) / .38));
+    radial-gradient(ellipse at 50% 48%, rgb(var(--lg-yt-center, 92 116 160) / .52), transparent 62%),
+    linear-gradient(90deg, rgb(var(--lg-yt-left, 60 80 120) / .56), transparent 31% 69%, rgb(var(--lg-yt-right, 60 80 120) / .56));
   filter: blur(calc(var(--lg-yt-blur) * .82)) saturate(150%);
   transform: scale(1.08);
   mix-blend-mode: screen;
@@ -80,7 +80,7 @@ html[data-lg-yt-watch="true"] ytd-app {
   content: "";
   position: absolute;
   inset: 0;
-  background: radial-gradient(ellipse at 50% 42%, transparent 8%, rgb(3 5 9 / .18) 54%, rgb(3 5 9 / .72) 100%);
+  background: radial-gradient(ellipse at 50% 42%, transparent 10%, rgb(3 5 9 / .1) 58%, rgb(3 5 9 / .48) 100%);
 }
 
 .lg-yt-toggle,

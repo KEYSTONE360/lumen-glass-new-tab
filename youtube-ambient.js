@@ -2,7 +2,7 @@
   if (window.__lumenYouTubeAmbient) return;
   window.__lumenYouTubeAmbient = true;
 
-  const defaults = { ytAmbientEnabled: true, ytAmbientIntensity: 72, ytAmbientBlur: 58, ytAmbientSpread: 116, ytAmbientSaturation: 155 };
+  const defaults = { ytAmbientEnabled: true, ytAmbientIntensity: 92, ytAmbientBlur: 76, ytAmbientSpread: 132, ytAmbientSaturation: 190 };
   const root = document.documentElement;
   const host = document.createElement("div");
   const canvas = document.createElement("canvas");
@@ -138,7 +138,11 @@
     await chrome.storage.local.set({ [key]: settings[key] });
   });
 
-  chrome.storage.local.get(defaults).then((stored) => {
+  chrome.storage.local.get({ ...defaults, ytAmbientSettingsVersion: 0 }).then(async (stored) => {
+    if (stored.ytAmbientSettingsVersion < 2) {
+      stored = { ...stored, ...defaults, ytAmbientSettingsVersion: 2 };
+      await chrome.storage.local.set(stored);
+    }
     applySettings(stored);
     bindVideo();
     cancelAnimationFrame(frameRequest);
