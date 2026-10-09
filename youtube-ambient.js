@@ -20,7 +20,9 @@
   edge.className = "lg-yt-ambient-edge";
   toggle.className = "lg-yt-toggle";
   toggle.type = "button";
-  toggle.textContent = "◐ 주변광";
+  toggle.textContent = "◐";
+  toggle.title = "YouTube 주변광 설정";
+  toggle.setAttribute("aria-label", "YouTube 주변광 설정");
   toggle.setAttribute("aria-expanded", "false");
   panel.className = "lg-yt-panel";
   panel.hidden = true;
@@ -60,14 +62,7 @@
     }
   };
 
-  const setHostBounds = () => {
-    if (!video) return;
-    const rect = video.getBoundingClientRect();
-    host.style.left = `${rect.left}px`;
-    host.style.top = `${rect.top}px`;
-    host.style.width = `${rect.width}px`;
-    host.style.height = `${rect.height}px`;
-  };
+  const isVideoPage = () => location.pathname === "/watch" || location.pathname.startsWith("/shorts/") || location.pathname.startsWith("/embed/");
 
   const averageStrip = (data, width, height, x0, x1) => {
     let r = 0, g = 0, b = 0, count = 0;
@@ -98,9 +93,8 @@
     frameRequest = requestAnimationFrame(paint);
     if (!settings.ytAmbientEnabled || !video || document.hidden || video.readyState < 2 || time - lastPaint < 50) return;
     lastPaint = time;
-    setHostBounds();
     const width = 128;
-    const height = Math.max(54, Math.round(width * (video.videoHeight || 9) / (video.videoWidth || 16)));
+    const height = 72;
     if (canvas.width !== width || canvas.height !== height) { canvas.width = width; canvas.height = height; }
     try {
       context.drawImage(video, 0, 0, width, height);
@@ -109,12 +103,15 @@
   };
 
   const bindVideo = () => {
-    const candidate = document.querySelector("video.html5-main-video, #shorts-player video, video");
+    const activePage = isVideoPage();
+    root.dataset.lgYtWatch = String(activePage);
+    toggle.hidden = !activePage;
+    if (!activePage) panel.hidden = true;
+    const candidate = activePage ? document.querySelector("video.html5-main-video, #shorts-player video") : null;
     if (candidate === video) return;
     video = candidate;
     sampledColors = true;
     host.hidden = !settings.ytAmbientEnabled || !video;
-    setHostBounds();
   };
 
   const scheduleBind = () => {
@@ -149,6 +146,6 @@
   });
 
   new MutationObserver(scheduleBind).observe(document.documentElement, { childList: true, subtree: true });
-  addEventListener("resize", setHostBounds, { passive: true });
   document.addEventListener("yt-navigate-finish", scheduleBind);
+  document.addEventListener("fullscreenchange", scheduleBind);
 })();
