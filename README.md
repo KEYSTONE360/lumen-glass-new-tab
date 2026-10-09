@@ -12,12 +12,15 @@ Google 자동완성 패널은 검색 폼 내부에서만 스타일링하며 상�
 
 ## YouTube 주변광
 
-- 영상 프레임을 저해상도 광원 텍스처로 실시간 재투영합니다.
-- 좌·중앙·우 색을 분리하고 플레이어 내부 최하단에서 다중 블러·색 포화·가장자리 광원을 합성해 영상 바깥으로만 빛이 새어 나오게 합니다.
+- 공개 MIT 프로젝트 `WesselKroos/youtube-ambilight`의 projector 구조를 참고해 독립 구현한 방향별 주변광 렌더러입니다.
+- 영상 프레임의 상·우·하·좌 가장자리를 네 개의 독립 캔버스로 샘플링하며 `requestVideoFrameCallback`으로 영상과 동기화합니다.
+- 확산 거리·블러·edge size·fade start·밝기·콘트라스트·채도·방향별 세기·깜빡임 감소·FPS·내부 해상도를 조절할 수 있습니다.
 - 주변광 레이어는 모든 메뉴·추천 영상·검색·플레이어 컨트롤보다 뒤에 있고 입력을 받지 않아 YouTube 기본 기능을 방해하지 않습니다.
 - YouTube 페이지 배경을 투명화하지 않으므로 추천 목록·영상 정보·댓글·헤더는 원본 CSS를 그대로 유지합니다.
 - 주변광은 플레이어 컨테이너의 0번 레이어, 실제 영상과 컨트롤은 1번 레이어로 분리해 빛이 가려지거나 조작 UI 위를 덮지 않습니다.
 - Shorts에서는 현재 활성화된 세로 영상만 추적하며 스와이프할 때마다 광원을 다시 연결합니다. 우측 Shorts 액션 버튼을 피하기 위해 주변광 설정은 좌측 하단으로 이동합니다.
+
+렌더링 구조 참고: [Ambient light for YouTube™](https://chromewebstore.google.com/detail/ambient-light-for-youtube/paponcgjfojgemddooebbgniglhkajkj), [WesselKroos/youtube-ambilight](https://github.com/WesselKroos/youtube-ambilight) (MIT). 소스 코드를 복제하지 않고 방향별 projector와 영상 프레임 동기화 개념을 이 확장 구조에 맞춰 새로 구현했습니다.
 - YouTube 영상 페이지 우측 하단의 **◐ 주변광** 버튼에서 밝기·빛 번짐·실제 적용 범위(0–1600px)·확장 배율·채도를 각각 조절합니다. 적용 범위는 오른쪽으로 움직일수록 넓어지며 외곽 그림자의 blur와 spread가 함께 강하게 증가합니다. 버튼이 가려진 경우 `Alt + Shift + L`로 패널을 열거나 닫을 수 있습니다.
 - `Shift`를 누른 채 **◐ 주변광**을 클릭하면 효과를 즉시 켜거나 끌 수 있습니다.
 
