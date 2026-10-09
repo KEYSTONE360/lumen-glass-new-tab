@@ -96,6 +96,12 @@
   font: 600 13px "Segoe UI", Roboto, sans-serif;
 }
 
+html[data-lg-yt-mode="shorts"] .lg-yt-toggle,
+html[data-lg-yt-mode="shorts"] .lg-yt-panel {
+  left: 18px;
+  right: auto;
+}
+
 .lg-yt-toggle {
   bottom: 18px;
   width: auto;

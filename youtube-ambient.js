@@ -46,6 +46,7 @@
   let playerSurface = null;
   let frameRequest = 0;
   let lastPaint = 0;
+  let lastCandidateCheck = 0;
   let sampledColors = true;
   let observerTimer = 0;
 
@@ -76,6 +77,20 @@
 
   const isVideoPage = () => location.pathname === "/watch" || location.pathname.startsWith("/shorts/") || location.pathname.startsWith("/embed/");
 
+  const findActiveVideo = () => {
+    if (location.pathname.startsWith("/shorts/")) {
+      const marked = document.querySelector("ytd-reel-video-renderer[is-active] video.html5-main-video, ytd-reel-video-renderer[active] video.html5-main-video, ytd-reel-video-renderer[is-active] video");
+      if (marked) return marked;
+      const candidates = Array.from(document.querySelectorAll("#shorts-player video, ytd-reel-video-renderer video"));
+      return candidates.find((item) => {
+        const rect = item.getBoundingClientRect();
+        const center = rect.top + rect.height / 2;
+        return item.offsetParent && center > 0 && center < innerHeight && !item.paused;
+      }) || candidates.find((item) => item.offsetParent) || null;
+    }
+    return document.querySelector("video.html5-main-video");
+  };
+
   const averageStrip = (data, width, height, x0, x1) => {
     let r = 0, g = 0, b = 0, count = 0;
     for (let y = 1; y < height; y += 2) {
@@ -103,6 +118,10 @@
 
   const paint = (time) => {
     frameRequest = requestAnimationFrame(paint);
+    if (time - lastCandidateCheck > 500) {
+      lastCandidateCheck = time;
+      bindVideo();
+    }
     if (!settings.ytAmbientEnabled || !video || document.hidden || video.readyState < 2 || time - lastPaint < 50) return;
     lastPaint = time;
     const width = 128;
@@ -117,14 +136,17 @@
   const bindVideo = () => {
     const activePage = isVideoPage();
     root.dataset.lgYtWatch = String(activePage);
+    root.dataset.lgYtMode = location.pathname.startsWith("/shorts/") ? "shorts" : "watch";
     toggle.hidden = !activePage;
     if (!activePage) panel.hidden = true;
-    const candidate = activePage ? document.querySelector("video.html5-main-video, #shorts-player video") : null;
+    const candidate = activePage ? findActiveVideo() : null;
     if (candidate === video) return;
     playerSurface?.classList.remove("lg-yt-player-surface");
     video = candidate;
     const watchPage = video?.closest("ytd-watch-flexy");
-    playerSurface = watchPage?.querySelector("#player")
+    playerSurface = video?.closest("#shorts-player")
+      || video?.closest("ytd-reel-video-renderer")
+      || watchPage?.querySelector("#player")
       || watchPage?.querySelector("#player-container-outer")
       || watchPage?.querySelector("#full-bleed-container")
       || video?.closest("#shorts-player, ytd-player, .html5-video-player")
@@ -190,7 +212,8 @@
     frameRequest = requestAnimationFrame(paint);
   });
 
-  new MutationObserver(scheduleBind).observe(document.documentElement, { childList: true, subtree: true });
+  new MutationObserver(scheduleBind).observe(document.documentElement, { childList: true, subtree: true, attributes: true, attributeFilter: ["is-active", "active"] });
   document.addEventListener("yt-navigate-finish", scheduleBind);
+  document.addEventListener("yt-page-data-updated", scheduleBind);
   document.addEventListener("fullscreenchange", scheduleBind);
 })();
