@@ -2,7 +2,7 @@
   if (window.__lumenYouTubeAmbient) return;
   window.__lumenYouTubeAmbient = true;
 
-  const defaults = { ytAmbientEnabled: true, ytAmbientIntensity: 92, ytAmbientBlur: 76, ytAmbientSpread: 132, ytAmbientSaturation: 190 };
+  const defaults = { ytAmbientEnabled: true, ytAmbientIntensity: 92, ytAmbientBlur: 76, ytAmbientReach: 110, ytAmbientSpread: 132, ytAmbientSaturation: 190 };
   const root = document.documentElement;
   const host = document.createElement("div");
   const canvas = document.createElement("canvas");
@@ -31,7 +31,8 @@
   const controls = [
     ["ytAmbientIntensity", "밝기", 0, 100, "%"],
     ["ytAmbientBlur", "빛 번짐", 24, 100, "px"],
-    ["ytAmbientSpread", "확장 범위", 100, 145, "%"],
+    ["ytAmbientReach", "적용 범위", 0, 240, "px"],
+    ["ytAmbientSpread", "광원 배율", 80, 200, "%"],
     ["ytAmbientSaturation", "채도", 80, 220, "%"]
   ];
   panel.innerHTML = controls.map(([key, label, min, max]) =>
@@ -51,6 +52,9 @@
     settings = { ...defaults, ...next };
     root.style.setProperty("--lg-yt-intensity", settings.ytAmbientIntensity / 100);
     root.style.setProperty("--lg-yt-blur", `${settings.ytAmbientBlur}px`);
+    root.style.setProperty("--lg-yt-reach", `${settings.ytAmbientReach}px`);
+    root.style.setProperty("--lg-yt-bloom-reach", `${Math.round(settings.ytAmbientReach * .72)}px`);
+    root.style.setProperty("--lg-yt-edge-reach", `${Math.round(settings.ytAmbientReach * .18)}px`);
     root.style.setProperty("--lg-yt-spread", settings.ytAmbientSpread / 100);
     root.style.setProperty("--lg-yt-player-spread", 1 + (settings.ytAmbientSpread / 100 - 1) * .48);
     root.style.setProperty("--lg-yt-saturation", `${settings.ytAmbientSaturation}%`);

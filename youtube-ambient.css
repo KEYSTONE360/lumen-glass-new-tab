@@ -1,6 +1,9 @@
 :root {
   --lg-yt-intensity: .92;
   --lg-yt-blur: 76px;
+  --lg-yt-reach: 110px;
+  --lg-yt-bloom-reach: 79px;
+  --lg-yt-edge-reach: 20px;
   --lg-yt-spread: 1.32;
   --lg-yt-player-spread: 1.154;
   --lg-yt-saturation: 190%;
@@ -36,16 +39,16 @@
 }
 
 .lg-yt-ambient-frame {
-  inset: -5%;
-  width: 110%;
-  height: 110%;
+  inset: calc(0px - var(--lg-yt-reach));
+  width: auto;
+  height: auto;
   transform: scale(var(--lg-yt-player-spread));
   filter: blur(var(--lg-yt-blur)) saturate(var(--lg-yt-saturation)) contrast(1.18) brightness(.92);
   opacity: .9;
 }
 
 .lg-yt-ambient-bloom {
-  inset: -7%;
+  inset: calc(0px - var(--lg-yt-bloom-reach));
   background:
     radial-gradient(ellipse at 50% 48%, rgb(var(--lg-yt-center, 92 116 160) / .52), transparent 62%),
     linear-gradient(90deg, rgb(var(--lg-yt-left, 60 80 120) / .56), transparent 31% 69%, rgb(var(--lg-yt-right, 60 80 120) / .56));
@@ -55,7 +58,7 @@
 }
 
 .lg-yt-ambient-edge {
-  inset: -2%;
+  inset: calc(0px - var(--lg-yt-edge-reach));
   border: 1px solid rgb(255 255 255 / .06);
   box-shadow:
     -34px 0 72px rgb(var(--lg-yt-left, 70 90 140) / .28),
