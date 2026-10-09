@@ -1,6 +1,18 @@
 const $ = (selector) => document.querySelector(selector);
 const MAX_BOOKMARKS = 8;
-const defaults = { transparency: 62, contrast: 108, hue: 214, motion: 100, refraction: 28 };
+const defaults = {
+  transparency: 62, contrast: 108, hue: 214, motion: 100, refraction: 28,
+  panelSaturation: 165, borderOpacity: 22, cornerRadius: 25, shadowStrength: 32,
+  glowStrength: 50, buttonOpacity: 16, buttonGlow: 45, pointerGlow: 68,
+  liquidOpacity: 34, noiseOpacity: 6, wallpaperDim: 18
+};
+const settingUnits = {
+  transparency: "%", contrast: "%", hue: "°", motion: "%", refraction: "px",
+  panelSaturation: "%", borderOpacity: "%", cornerRadius: "px", shadowStrength: "%",
+  glowStrength: "%", buttonOpacity: "%", buttonGlow: "%", pointerGlow: "%",
+  liquidOpacity: "%", noiseOpacity: "%", wallpaperDim: "%"
+};
+const DEFAULT_WALLPAPER = "assets/reference-flow-wallpaper.png";
 const storage = globalThis.chrome?.storage?.local ?? {
   async get(fallback) { return { ...fallback }; },
   async set() {}
@@ -105,12 +117,21 @@ function applyGlassSettings(settings) {
   document.documentElement.style.setProperty("--contrast", `${settings.contrast}%`);
   document.documentElement.style.setProperty("--tint", settings.hue);
   document.documentElement.style.setProperty("--glass-blur", `${settings.refraction}px`);
-  $("#transparency-value").value = `${settings.transparency}%`;
-  $("#contrast-value").value = `${settings.contrast}%`;
-  $("#hue-value").value = `${settings.hue}°`;
-  $("#motion-value").value = `${settings.motion}%`;
-  $("#refraction-value").value = `${settings.refraction}px`;
-  for (const [key, value] of Object.entries(settings)) $("#" + key).value = value;
+  document.documentElement.style.setProperty("--panel-saturation", `${settings.panelSaturation}%`);
+  document.documentElement.style.setProperty("--border-opacity", settings.borderOpacity / 100);
+  document.documentElement.style.setProperty("--corner-radius", `${settings.cornerRadius}px`);
+  document.documentElement.style.setProperty("--shadow-strength", settings.shadowStrength / 100);
+  document.documentElement.style.setProperty("--glow-strength", settings.glowStrength / 1000);
+  document.documentElement.style.setProperty("--button-opacity", settings.buttonOpacity / 100);
+  document.documentElement.style.setProperty("--button-glow", settings.buttonGlow / 1000);
+  document.documentElement.style.setProperty("--pointer-glow", settings.pointerGlow / 100);
+  document.documentElement.style.setProperty("--liquid-opacity", settings.liquidOpacity / 100);
+  document.documentElement.style.setProperty("--noise-opacity", settings.noiseOpacity / 100);
+  document.documentElement.style.setProperty("--wallpaper-dim", settings.wallpaperDim / 100);
+  for (const [key, value] of Object.entries(settings)) {
+    $("#" + key).value = value;
+    $("#" + key + "-value").value = `${value}${settingUnits[key]}`;
+  }
 }
 
 $("#settings-button").addEventListener("click", () => $("#settings-dialog").showModal());
@@ -123,12 +144,75 @@ for (const key of Object.keys(defaults)) {
 }
 $("#reset-settings").addEventListener("click", async () => { applyGlassSettings(defaults); await storage.set(defaults); });
 
+function compressWallpaper(file) {
+  return new Promise((resolve, reject) => {
+    if (!file.type.startsWith("image/")) return reject(new Error("이미지 파일만 선택할 수 있습니다."));
+    if (file.size > 20 * 1024 * 1024) return reject(new Error("20MB 이하 이미지를 선택해 주세요."));
+    const reader = new FileReader();
+    reader.onerror = () => reject(new Error("이미지를 읽지 못했습니다."));
+    reader.onload = () => {
+      const image = new Image();
+      image.onerror = () => reject(new Error("지원되지 않는 이미지입니다."));
+      image.onload = () => {
+        const maxWidth = 2560;
+        const maxHeight = 1440;
+        const scale = Math.min(1, maxWidth / image.naturalWidth, maxHeight / image.naturalHeight);
+        const width = Math.max(1, Math.round(image.naturalWidth * scale));
+        const height = Math.max(1, Math.round(image.naturalHeight * scale));
+        const canvas = document.createElement("canvas");
+        canvas.width = width;
+        canvas.height = height;
+        const context = canvas.getContext("2d", { alpha: false });
+        context.drawImage(image, 0, 0, width, height);
+        canvas.toBlob((blob) => {
+          if (!blob) return reject(new Error("이미지 변환에 실패했습니다."));
+          const output = new FileReader();
+          output.onerror = () => reject(new Error("변환된 이미지를 읽지 못했습니다."));
+          output.onload = () => resolve(output.result);
+          output.readAsDataURL(blob);
+        }, "image/jpeg", .9);
+      };
+      image.src = reader.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+function applyWallpaper(source) {
+  const value = source || DEFAULT_WALLPAPER;
+  document.documentElement.style.setProperty("--wallpaper-image", `url("${value}")`);
+  return value;
+}
+
+$("#choose-wallpaper").addEventListener("click", () => $("#wallpaper-file").click());
+$("#wallpaper-file").addEventListener("change", async (event) => {
+  const file = event.target.files?.[0];
+  if (!file) return;
+  const status = $("#wallpaper-status");
+  status.textContent = "배경을 최적화하는 중…";
+  try {
+    const customWallpaper = await compressWallpaper(file);
+    await storage.set({ customWallpaper });
+    status.textContent = "배경이 변경되었습니다.";
+    location.reload();
+  } catch (error) {
+    status.textContent = error.message;
+    event.target.value = "";
+  }
+});
+$("#reset-wallpaper").addEventListener("click", async () => {
+  await storage.set({ customWallpaper: "" });
+  $("#wallpaper-status").textContent = "기본 배경으로 복원되었습니다.";
+  location.reload();
+});
+
 async function initialize() {
-  const { light = false, ...storedSettings } = await storage.get({ light: false, ...defaults });
+  const { light = false, customWallpaper = "", ...storedSettings } = await storage.get({ light: false, customWallpaper: "", ...defaults });
   document.body.classList.toggle("light", light);
   $("#appearance-toggle").setAttribute("aria-pressed", String(light));
   applyGlassSettings(storedSettings);
-  WallpaperPhysics.mount($("#wallpaper-canvas"), "assets/reference-flow-wallpaper.png", { motion: storedSettings.motion, refraction: storedSettings.refraction });
+  const wallpaperSource = applyWallpaper(customWallpaper);
+  WallpaperPhysics.mount($("#wallpaper-canvas"), wallpaperSource, { motion: storedSettings.motion, refraction: storedSettings.refraction });
   LiquidPhysics.mount($("#liquid-canvas"), { hue: storedSettings.hue, motion: storedSettings.motion });
   updateClock();
   setInterval(updateClock, 1000);
