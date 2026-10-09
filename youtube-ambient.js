@@ -2,7 +2,7 @@
   if (window.__lumenYouTubeAmbient) return;
   window.__lumenYouTubeAmbient = true;
 
-  const defaults = { ytAmbientEnabled: true, ytAmbientIntensity: 92, ytAmbientBlur: 76, ytAmbientReach: 110, ytAmbientSpread: 132, ytAmbientSaturation: 190 };
+  const defaults = { ytAmbientEnabled: true, ytAmbientIntensity: 92, ytAmbientBlur: 76, ytAmbientReach: 220, ytAmbientSpread: 132, ytAmbientSaturation: 190 };
   const root = document.documentElement;
   const host = document.createElement("div");
   const canvas = document.createElement("canvas");
@@ -31,7 +31,7 @@
   const controls = [
     ["ytAmbientIntensity", "밝기", 0, 100, "%"],
     ["ytAmbientBlur", "빛 번짐", 24, 100, "px"],
-    ["ytAmbientReach", "적용 범위", 0, 240, "px"],
+    ["ytAmbientReach", "적용 범위 (오른쪽 = 넓게)", 0, 720, "px"],
     ["ytAmbientSpread", "광원 배율", 80, 200, "%"],
     ["ytAmbientSaturation", "채도", 80, 220, "%"]
   ];
@@ -58,6 +58,9 @@
     root.style.setProperty("--lg-yt-reach", `${settings.ytAmbientReach}px`);
     root.style.setProperty("--lg-yt-bloom-reach", `${Math.round(settings.ytAmbientReach * .72)}px`);
     root.style.setProperty("--lg-yt-edge-reach", `${Math.round(settings.ytAmbientReach * .18)}px`);
+    root.style.setProperty("--lg-yt-shadow-spread", `${Math.round(settings.ytAmbientReach * .2)}px`);
+    root.style.setProperty("--lg-yt-reach-blur", `${Math.round(settings.ytAmbientBlur + settings.ytAmbientReach * .28)}px`);
+    root.style.setProperty("--lg-yt-reach-blur-strong", `${Math.round(settings.ytAmbientBlur * 1.2 + settings.ytAmbientReach * .34)}px`);
     root.style.setProperty("--lg-yt-spread", settings.ytAmbientSpread / 100);
     root.style.setProperty("--lg-yt-player-spread", 1 + (settings.ytAmbientSpread / 100 - 1) * .48);
     root.style.setProperty("--lg-yt-saturation", `${settings.ytAmbientSaturation}%`);
@@ -121,7 +124,8 @@
     playerSurface?.classList.remove("lg-yt-player-surface");
     video = candidate;
     const watchPage = video?.closest("ytd-watch-flexy");
-    playerSurface = watchPage?.querySelector("#player-container-outer")
+    playerSurface = watchPage?.querySelector("#player")
+      || watchPage?.querySelector("#player-container-outer")
       || watchPage?.querySelector("#full-bleed-container")
       || video?.closest("#shorts-player, ytd-player, .html5-video-player")
       || null;
@@ -174,6 +178,11 @@
       stored.ytAmbientEnabled = true;
       stored.ytAmbientSettingsVersion = 3;
       await chrome.storage.local.set({ ytAmbientEnabled: true, ytAmbientSettingsVersion: 3 });
+    }
+    if (stored.ytAmbientSettingsVersion < 4) {
+      stored.ytAmbientReach = Math.max(220, Math.round((stored.ytAmbientReach || 110) * 2));
+      stored.ytAmbientSettingsVersion = 4;
+      await chrome.storage.local.set({ ytAmbientReach: stored.ytAmbientReach, ytAmbientSettingsVersion: 4 });
     }
     applySettings(stored);
     bindVideo();

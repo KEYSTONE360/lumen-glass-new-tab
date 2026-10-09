@@ -1,9 +1,12 @@
 :root {
   --lg-yt-intensity: .92;
   --lg-yt-blur: 76px;
-  --lg-yt-reach: 110px;
-  --lg-yt-bloom-reach: 79px;
-  --lg-yt-edge-reach: 20px;
+  --lg-yt-reach: 220px;
+  --lg-yt-bloom-reach: 158px;
+  --lg-yt-edge-reach: 40px;
+  --lg-yt-shadow-spread: 44px;
+  --lg-yt-reach-blur: 138px;
+  --lg-yt-reach-blur-strong: 166px;
   --lg-yt-shadow-blur: 95px;
   --lg-yt-shadow-blur-strong: 106px;
   --lg-yt-spread: 1.32;
@@ -21,9 +24,9 @@
   opacity: var(--lg-yt-intensity);
   transition: opacity .35s ease;
   box-shadow:
-    -42px 0 var(--lg-yt-shadow-blur) rgb(var(--lg-yt-left, 50 90 150) / .42),
-    42px 0 var(--lg-yt-shadow-blur) rgb(var(--lg-yt-right, 50 90 150) / .42),
-    0 34px var(--lg-yt-shadow-blur-strong) rgb(var(--lg-yt-center, 50 90 150) / .34);
+    -42px 0 var(--lg-yt-reach-blur) var(--lg-yt-shadow-spread) rgb(var(--lg-yt-left, 50 90 150) / .42),
+    42px 0 var(--lg-yt-reach-blur) var(--lg-yt-shadow-spread) rgb(var(--lg-yt-right, 50 90 150) / .42),
+    0 34px var(--lg-yt-reach-blur-strong) var(--lg-yt-shadow-spread) rgb(var(--lg-yt-center, 50 90 150) / .34);
 }
 
 .lg-yt-player-surface {
@@ -123,6 +126,7 @@
 .lg-yt-panel label { display: grid; grid-template-columns: 1fr auto; gap: 7px; margin-bottom: 13px; }
 .lg-yt-panel label:last-child { margin-bottom: 0; }
 .lg-yt-panel input { grid-column: 1 / -1; width: 100%; accent-color: #8fd7ff; }
+.lg-yt-panel input[data-setting="ytAmbientReach"] { direction: ltr; }
 .lg-yt-panel output { font-variant-numeric: tabular-nums; color: #cfefff; }
 
 html[fullscreen] .lg-yt-toggle,
