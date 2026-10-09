@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Lumen Glass New Tab",
-  "version": "1.3.2",
+  "version": "1.3.3",
   "description": "A polished liquid-glass new tab with a cinematic, video-reactive YouTube ambient light.",
   "permissions": ["bookmarks", "topSites", "storage", "unlimitedStorage"],
   "host_permissions": [

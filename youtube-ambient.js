@@ -41,9 +41,9 @@
 
   let settings = { ...defaults };
   let video = null;
+  let playerSurface = null;
   let frameRequest = 0;
   let lastPaint = 0;
-  let lastGeometry = 0;
   let sampledColors = true;
   let observerTimer = 0;
 
@@ -52,6 +52,7 @@
     root.style.setProperty("--lg-yt-intensity", settings.ytAmbientIntensity / 100);
     root.style.setProperty("--lg-yt-blur", `${settings.ytAmbientBlur}px`);
     root.style.setProperty("--lg-yt-spread", settings.ytAmbientSpread / 100);
+    root.style.setProperty("--lg-yt-player-spread", 1 + (settings.ytAmbientSpread / 100 - 1) * .48);
     root.style.setProperty("--lg-yt-saturation", `${settings.ytAmbientSaturation}%`);
     toggle.dataset.enabled = String(settings.ytAmbientEnabled);
     host.hidden = !settings.ytAmbientEnabled || !video;
@@ -64,18 +65,6 @@
   };
 
   const isVideoPage = () => location.pathname === "/watch" || location.pathname.startsWith("/shorts/") || location.pathname.startsWith("/embed/");
-
-  const updateVideoGeometry = () => {
-    if (!video) return;
-    const rect = video.getBoundingClientRect();
-    if (rect.width < 2 || rect.height < 2) return;
-    const centerX = rect.left + rect.width / 2;
-    const centerY = rect.top + rect.height / 2;
-    host.style.setProperty("--lg-yt-focus-x", `${centerX}px`);
-    host.style.setProperty("--lg-yt-focus-y", `${centerY}px`);
-    host.style.setProperty("--lg-yt-radius-x", `${Math.max(rect.width * .72, innerWidth * .42)}px`);
-    host.style.setProperty("--lg-yt-radius-y", `${Math.max(rect.height * .92, innerHeight * .48)}px`);
-  };
 
   const averageStrip = (data, width, height, x0, x1) => {
     let r = 0, g = 0, b = 0, count = 0;
@@ -106,10 +95,6 @@
     frameRequest = requestAnimationFrame(paint);
     if (!settings.ytAmbientEnabled || !video || document.hidden || video.readyState < 2 || time - lastPaint < 50) return;
     lastPaint = time;
-    if (time - lastGeometry > 250) {
-      lastGeometry = time;
-      updateVideoGeometry();
-    }
     const width = 128;
     const height = 72;
     if (canvas.width !== width || canvas.height !== height) { canvas.width = width; canvas.height = height; }
@@ -126,10 +111,19 @@
     if (!activePage) panel.hidden = true;
     const candidate = activePage ? document.querySelector("video.html5-main-video, #shorts-player video") : null;
     if (candidate === video) return;
+    playerSurface?.classList.remove("lg-yt-player-surface");
     video = candidate;
+    const watchPage = video?.closest("ytd-watch-flexy");
+    playerSurface = watchPage?.querySelector("#player-container-outer")
+      || watchPage?.querySelector("#full-bleed-container")
+      || video?.closest("#shorts-player, ytd-player, .html5-video-player")
+      || null;
+    if (playerSurface) {
+      playerSurface.classList.add("lg-yt-player-surface");
+      playerSurface.append(host);
+    }
     sampledColors = true;
-    host.hidden = !settings.ytAmbientEnabled || !video;
-    updateVideoGeometry();
+    host.hidden = !settings.ytAmbientEnabled || !video || !playerSurface;
   };
 
   const scheduleBind = () => {
@@ -168,7 +162,6 @@
   });
 
   new MutationObserver(scheduleBind).observe(document.documentElement, { childList: true, subtree: true });
-  addEventListener("resize", updateVideoGeometry, { passive: true });
   document.addEventListener("yt-navigate-finish", scheduleBind);
   document.addEventListener("fullscreenchange", scheduleBind);
 })();
