@@ -2,7 +2,7 @@
   if (window.__lumenYouTubeAmbient) return;
   window.__lumenYouTubeAmbient = true;
 
-  const defaults = { ytAmbientEnabled: true, ytAmbientIntensity: 92, ytAmbientBlur: 76, ytAmbientReach: 220, ytAmbientSpread: 132, ytAmbientSaturation: 190 };
+  const defaults = { ytAmbientEnabled: true, ytAmbientIntensity: 92, ytAmbientBlur: 76, ytAmbientReach: 360, ytAmbientSpread: 132, ytAmbientSaturation: 190 };
   const root = document.documentElement;
   const host = document.createElement("div");
   const canvas = document.createElement("canvas");
@@ -31,7 +31,7 @@
   const controls = [
     ["ytAmbientIntensity", "밝기", 0, 100, "%"],
     ["ytAmbientBlur", "빛 번짐", 24, 100, "px"],
-    ["ytAmbientReach", "적용 범위 (오른쪽 = 넓게)", 0, 720, "px"],
+    ["ytAmbientReach", "적용 범위 (오른쪽 = 넓게)", 0, 1600, "px"],
     ["ytAmbientSpread", "광원 배율", 80, 200, "%"],
     ["ytAmbientSaturation", "채도", 80, 220, "%"]
   ];
@@ -57,11 +57,11 @@
     root.style.setProperty("--lg-yt-shadow-blur", `${Math.round(settings.ytAmbientBlur * 1.25)}px`);
     root.style.setProperty("--lg-yt-shadow-blur-strong", `${Math.round(settings.ytAmbientBlur * 1.4)}px`);
     root.style.setProperty("--lg-yt-reach", `${settings.ytAmbientReach}px`);
-    root.style.setProperty("--lg-yt-bloom-reach", `${Math.round(settings.ytAmbientReach * .72)}px`);
-    root.style.setProperty("--lg-yt-edge-reach", `${Math.round(settings.ytAmbientReach * .18)}px`);
-    root.style.setProperty("--lg-yt-shadow-spread", `${Math.round(settings.ytAmbientReach * .2)}px`);
-    root.style.setProperty("--lg-yt-reach-blur", `${Math.round(settings.ytAmbientBlur + settings.ytAmbientReach * .28)}px`);
-    root.style.setProperty("--lg-yt-reach-blur-strong", `${Math.round(settings.ytAmbientBlur * 1.2 + settings.ytAmbientReach * .34)}px`);
+    root.style.setProperty("--lg-yt-bloom-reach", `${Math.round(settings.ytAmbientReach * .85)}px`);
+    root.style.setProperty("--lg-yt-edge-reach", `${Math.round(settings.ytAmbientReach * .25)}px`);
+    root.style.setProperty("--lg-yt-shadow-spread", `${Math.round(settings.ytAmbientReach * .38)}px`);
+    root.style.setProperty("--lg-yt-reach-blur", `${Math.round(Math.min(420, settings.ytAmbientBlur + settings.ytAmbientReach * .35))}px`);
+    root.style.setProperty("--lg-yt-reach-blur-strong", `${Math.round(Math.min(520, settings.ytAmbientBlur * 1.2 + settings.ytAmbientReach * .42))}px`);
     root.style.setProperty("--lg-yt-spread", settings.ytAmbientSpread / 100);
     root.style.setProperty("--lg-yt-player-spread", 1 + (settings.ytAmbientSpread / 100 - 1) * .48);
     root.style.setProperty("--lg-yt-saturation", `${settings.ytAmbientSaturation}%`);
@@ -205,6 +205,11 @@
       stored.ytAmbientReach = Math.max(220, Math.round((stored.ytAmbientReach || 110) * 2));
       stored.ytAmbientSettingsVersion = 4;
       await chrome.storage.local.set({ ytAmbientReach: stored.ytAmbientReach, ytAmbientSettingsVersion: 4 });
+    }
+    if (stored.ytAmbientSettingsVersion < 5) {
+      stored.ytAmbientReach = Math.max(360, Math.round((stored.ytAmbientReach || 220) * 1.5));
+      stored.ytAmbientSettingsVersion = 5;
+      await chrome.storage.local.set({ ytAmbientReach: stored.ytAmbientReach, ytAmbientSettingsVersion: 5 });
     }
     applySettings(stored);
     bindVideo();

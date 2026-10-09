@@ -1,12 +1,12 @@
 :root {
   --lg-yt-intensity: .92;
   --lg-yt-blur: 76px;
-  --lg-yt-reach: 220px;
-  --lg-yt-bloom-reach: 158px;
-  --lg-yt-edge-reach: 40px;
-  --lg-yt-shadow-spread: 44px;
-  --lg-yt-reach-blur: 138px;
-  --lg-yt-reach-blur-strong: 166px;
+  --lg-yt-reach: 360px;
+  --lg-yt-bloom-reach: 306px;
+  --lg-yt-edge-reach: 90px;
+  --lg-yt-shadow-spread: 137px;
+  --lg-yt-reach-blur: 202px;
+  --lg-yt-reach-blur-strong: 242px;
   --lg-yt-shadow-blur: 95px;
   --lg-yt-shadow-blur-strong: 106px;
   --lg-yt-spread: 1.32;
