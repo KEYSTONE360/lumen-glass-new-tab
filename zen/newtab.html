@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>새 탭</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="scene">
+      <canvas id="wallpaper-canvas" class="wallpaper-physics-canvas" aria-hidden="true"></canvas>
+      <canvas id="liquid-canvas" class="liquid-physics-canvas" aria-hidden="true"></canvas>
+      <div class="aurora aurora--blue" aria-hidden="true"></div>
+      <div class="aurora aurora--violet" aria-hidden="true"></div>
+      <div class="aurora aurora--warm" aria-hidden="true"></div>
+      <div class="noise" aria-hidden="true"></div>
+
+      <header class="topbar glass-panel">
+        <button id="focus-toggle" class="icon-button" type="button" aria-label="집중 모드 전환" aria-pressed="false">
+          <span class="focus-icon" aria-hidden="true"></span>
+        </button>
+        <time id="date" class="date" datetime=""></time>
+        <button id="appearance-toggle" class="icon-button" type="button" aria-label="밝은 화면으로 전환" aria-pressed="false">
+          <span class="sun-icon" aria-hidden="true"></span>
+        </button>
+      </header>
+
+      <section class="hero" aria-labelledby="time">
+        <time id="time" class="time" datetime=""></time>
+        <p id="greeting" class="greeting">좋은 하루입니다</p>
+      </section>
+
+      <form id="search-form" class="search-shell glass-panel" role="search">
+        <label class="sr-only" for="search-input">웹 검색</label>
+        <span class="search-icon" aria-hidden="true"></span>
+        <input id="search-input" type="search" autocomplete="off" placeholder="검색 또는 URL 입력" />
+        <kbd>↵</kbd>
+      </form>
+
+      <section class="content-grid glass-panel">
+        <section class="collection" aria-labelledby="favorites-title">
+          <div class="collection-header">
+            <h2 id="favorites-title">즐겨찾기</h2>
+            <button id="manage-bookmarks" class="text-button" type="button">관리</button>
+          </div>
+          <div id="bookmarks" class="bookmark-grid" aria-live="polite"></div>
+        </section>
+
+        <section class="collection" aria-labelledby="recent-title">
+          <div class="collection-header">
+            <h2 id="recent-title">자주 방문한 사이트</h2>
+          </div>
+          <div id="top-sites" class="site-list" aria-live="polite"></div>
+        </section>
+      </section>
+
+      <p class="footer-hint"><span>↵</span> 검색 &nbsp;·&nbsp; <span>Ctrl K</span> 빠른 검색</p>
+
+    </main>
+    <button id="settings-button" class="settings-button glass-panel" type="button" aria-haspopup="dialog" aria-label="리퀴드 글라스 설정">⚙</button>
+    <dialog id="settings-dialog" class="settings-dialog glass-panel">
+      <form method="dialog">
+        <div class="settings-header"><h2>리퀴드 글라스</h2><button class="close-button" value="cancel" aria-label="설정 닫기">×</button></div>
+        <details class="settings-group" open><summary>유리 재질</summary>
+          <label>투명도 <output id="transparency-value"></output><input id="transparency" type="range" min="8" max="95" value="62" /></label>
+          <label>블러·굴절 <output id="refraction-value"></output><input id="refraction" type="range" min="0" max="64" value="28" /></label>
+          <label>패널 채도 <output id="panelSaturation-value"></output><input id="panelSaturation" type="range" min="50" max="240" value="165" /></label>
+          <label>콘트라스트 <output id="contrast-value"></output><input id="contrast" type="range" min="70" max="180" value="108" /></label>
+          <label>색조 <output id="hue-value"></output><input id="hue" type="range" min="0" max="360" value="214" /></label>
+        </details>
+        <details class="settings-group"><summary>형태와 경계</summary>
+          <label>테두리 <output id="borderOpacity-value"></output><input id="borderOpacity" type="range" min="0" max="60" value="22" /></label>
+          <label>모서리 <output id="cornerRadius-value"></output><input id="cornerRadius" type="range" min="4" max="48" value="25" /></label>
+          <label>그림자 <output id="shadowStrength-value"></output><input id="shadowStrength" type="range" min="0" max="80" value="32" /></label>
+          <label>외곽 발광 <output id="glowStrength-value"></output><input id="glowStrength" type="range" min="0" max="100" value="50" /></label>
+        </details>
+        <details class="settings-group"><summary>버튼과 포인터 반응</summary>
+          <label>버튼 투명도 <output id="buttonOpacity-value"></output><input id="buttonOpacity" type="range" min="0" max="70" value="16" /></label>
+          <label>버튼 발광 <output id="buttonGlow-value"></output><input id="buttonGlow" type="range" min="0" max="100" value="45" /></label>
+          <label>포인터 반사 <output id="pointerGlow-value"></output><input id="pointerGlow" type="range" min="0" max="100" value="68" /></label>
+        </details>
+        <details class="settings-group"><summary>배경 효과</summary>
+          <label>흐름 속도 <output id="motion-value"></output><input id="motion" type="range" min="0" max="200" value="100" /></label>
+          <label>액체광 세기 <output id="liquidOpacity-value"></output><input id="liquidOpacity" type="range" min="0" max="100" value="34" /></label>
+          <label>필름 입자 <output id="noiseOpacity-value"></output><input id="noiseOpacity" type="range" min="0" max="20" value="6" /></label>
+          <label>배경 암도 <output id="wallpaperDim-value"></output><input id="wallpaperDim" type="range" min="0" max="70" value="18" /></label>
+        </details>
+        <fieldset class="wallpaper-setting">
+          <legend>배경화면</legend>
+          <div class="wallpaper-actions">
+            <button id="choose-wallpaper" class="secondary-button" type="button">이미지 선택</button>
+            <button id="reset-wallpaper" class="secondary-button" type="button">기본 배경</button>
+          </div>
+          <input id="wallpaper-file" class="sr-only" type="file" accept="image/png,image/jpeg,image/webp,image/avif" />
+          <p id="wallpaper-status" class="wallpaper-status" aria-live="polite">PNG, JPG, WebP, AVIF · 최대 20MB</p>
+        </fieldset>
+        <button id="reset-settings" class="reset-button" type="button">기본값으로 복원</button>
+      </form>
+    </dialog>
+    <script src="compat.js"></script>
+    <script src="wallpaper-physics.js"></script>
+    <script src="liquid-physics.js"></script>
+    <script src="newtab.js"></script>
+  </body>
+</html>
